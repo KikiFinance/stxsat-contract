@@ -393,23 +393,6 @@ contract XSATStakingRouter is IXSATStakingRouter, ReentrancyGuardUpgradeable, UU
         return IERC20(xsat);
     }
 
-    // for debug
-    function withdrawAll() external onlyOperator whenNotPaused {
-        for (uint256 j = 0; j < validators.length; j++) {
-            if (validators[j].staked) {
-                _stakeHelper().withdraw(validators[j].validatorAddress, validatorCapacity);
-                validators[j].staked = false;
-            }
-        }
-    }
-
-    // for debug
-    function claimWithdrawTo(address _target) external onlyOperator nonReentrant whenNotPaused {
-        _stakeHelper().claimPendingFunds();
-        uint256 amount = _xsat().balanceOf(address(this));
-        _xsat().safeTransfer(_target, amount);
-    }
-
     // Storage gap for upgradeable contracts
     uint256[50] private __gap;
 }

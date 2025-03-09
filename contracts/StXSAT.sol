@@ -569,12 +569,6 @@ contract StXSAT is BaseStXSAT, ReentrancyGuardUpgradeable, UUPSUpgradeable, Acce
         }
     }
 
-    // debug
-    function claimWithdrawTo(address _target) external onlyAdmin nonReentrant whenNotPaused {
-        uint256 amount = _xsatToken().balanceOf(address(this));
-        _xsatToken().safeTransfer(_target, amount);
-    }
-
     // -------------------------------
     // Storage Gap for Upgradeability
     // -------------------------------
