@@ -526,7 +526,7 @@ contract StXSAT is BaseStXSAT, ReentrancyGuardUpgradeable, UUPSUpgradeable, Acce
         uint256 rewardShares = getSharesByPooledXSAT(_reward);
 
         // Update total shares: add reward shares and subtract fee shares.
-        postTotalShares = preTotalShares + rewardShares - feeShares;
+        postTotalShares = preTotalShares + feeShares;
 
         emit TokenRebased(
             preTotalShares,
