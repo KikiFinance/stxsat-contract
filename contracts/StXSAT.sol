@@ -205,7 +205,6 @@ contract StXSAT is BaseStXSAT, ReentrancyGuardUpgradeable, UUPSUpgradeable, Acce
 
         // Burn the stXSAT tokens corresponding to the requested withdrawal
         uint256 sharesAmount = getSharesByPooledXSAT(_amount);
-        _emitTransferAfterBurnShares(msg.sender, sharesAmount);
         _burnShares(msg.sender, sharesAmount);
 
         // Create withdrawal request with an unlock timestamp based on the staking router's lock time
@@ -216,6 +215,7 @@ contract StXSAT is BaseStXSAT, ReentrancyGuardUpgradeable, UUPSUpgradeable, Acce
         }));
 
         _decreasePool(_amount);
+        _emitTransferAfterBurnShares(msg.sender, sharesAmount);
 
         emit WithdrawRequested(msg.sender, _amount, unlockTimestamp);
     }
@@ -303,8 +303,10 @@ contract StXSAT is BaseStXSAT, ReentrancyGuardUpgradeable, UUPSUpgradeable, Acce
         require(balanceAfter >= balanceBefore, "Reward collection failed: insufficient XSAT received");
 
         uint256 rewardAmount = balanceAfter - balanceBefore;
-        _completeTokenRebase(rewardAmount);
+        uint256 feeShare = _completeTokenRebase(rewardAmount);
         _increasePool(rewardAmount);
+        _emitTransferAfterMintingShares(_stakingRouter().feeCollector(), feeShare);
+
         emit RewardDistributed(rewardAmount);
     }
 
@@ -504,10 +506,9 @@ contract StXSAT is BaseStXSAT, ReentrancyGuardUpgradeable, UUPSUpgradeable, Acce
      * @notice Completes the token rebase process by distributing rewards to stXSAT holders
      * and deducting fees for the fee collector. Adjusts total shares to maintain a 1:1 exchange.
      * @param _reward The XSAT reward amount (the difference between post- and pre-reward balances).
-     * @return postTotalShares The new total shares after the rebase.
-     * @return postTotalPooledXSAT The new total pooled XSAT after the rebase.
+     * @return feeShares Fee share.
      */
-    function _completeTokenRebase(uint256 _reward) internal returns (uint256 postTotalShares, uint256 postTotalPooledXSAT)
+    function _completeTokenRebase(uint256 _reward) internal returns (uint256 feeShares)
     {
         require(_reward > 0, "No reward to distribute");
 
@@ -517,16 +518,16 @@ contract StXSAT is BaseStXSAT, ReentrancyGuardUpgradeable, UUPSUpgradeable, Acce
         require(preTotalPooledXSAT > 0, "Total pooled XSAT must be > 0");
 
         // Distribute fee and retrieve the fee shares minted.
-        uint256 feeShares = _distributeFee(preTotalPooledXSAT, preTotalShares, _reward);
+        feeShares = _distributeFee(preTotalPooledXSAT, preTotalShares, _reward);
 
         // Calculate new pooled XSAT.
-        postTotalPooledXSAT = preTotalPooledXSAT + _reward;
+        uint256 postTotalPooledXSAT = preTotalPooledXSAT + _reward;
 
         // Calculate shares corresponding to the reward.
         uint256 rewardShares = getSharesByPooledXSAT(_reward);
 
         // Update total shares: add reward shares and subtract fee shares.
-        postTotalShares = preTotalShares + feeShares;
+        uint256 postTotalShares = preTotalShares + feeShares;
 
         emit TokenRebased(
             preTotalShares,
