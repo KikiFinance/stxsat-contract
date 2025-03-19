@@ -319,7 +319,7 @@ contract StXSAT is BaseStXSAT, ReentrancyGuardUpgradeable, UUPSUpgradeable, Acce
      *      it calculates the deficit in whole withdrawal units and triggers a withdrawal.
      *      Both actions emit events for logging.
      */
-    function syncBuffers() external whenNotPaused {
+    function syncBuffers() external nonReentrant whenNotPaused {
         IERC20 xsat = _xsatToken();
         IXSATStakingRouter router = _stakingRouter();
         uint256 validatorCapacity = router.validatorCapacity();
@@ -461,7 +461,7 @@ contract StXSAT is BaseStXSAT, ReentrancyGuardUpgradeable, UUPSUpgradeable, Acce
     }
 
     /**
-     * @notice Returns the total pooled XSAT by summing the buffered XSAT and the staking router's balance.
+     * @notice Returns the total pooled XSAT by summing the buffered XSAT and the staking balance.
      */
     function _getTotalPooledXSAT() internal view override returns (uint256) {
         return _depositBuffer + _stakingRouter().getStakingBalance() - _withdrawalReserve;

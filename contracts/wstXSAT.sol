@@ -5,32 +5,21 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-/**
- * @dev Interface for stXSAT token.
- * In addition to the standard ERC20 functions, stXSAT should implement
- * the following conversion functions.
- */
 interface IStXSAT is IERC20 {
-    /**
-     * @notice Converts a given amount of stXSAT to the corresponding wrapped shares.
-     * @param _pooledXSAT The amount of stXSAT to convert.
-     * @return The equivalent amount of wrapped shares (wstXSAT).
-     */
     function getSharesByPooledXSAT(uint256 _pooledXSAT) external view returns (uint256);
 
-    /**
-     * @notice Converts a given amount of wrapped shares to the corresponding stXSAT amount.
-     * @param _shares The amount of wrapped shares (wstXSAT) to convert.
-     * @return The equivalent amount of stXSAT.
-     */
     function getPooledXSATByShares(uint256 _shares) external view returns (uint256);
 }
 
 /**
- * @title WstXSAT
- * @notice This contract wraps stXSAT tokens into wstXSAT tokens at a 1:1 conversion rate.
- * Users can call wrap() to deposit stXSAT and mint an equivalent amount of wstXSAT.
- * Conversely, calling unwrap() will burn the wstXSAT tokens and return the corresponding stXSAT.
+ * @title Wrapped stXSAT (wstXSAT)
+ * @notice This contract wraps the dynamic stXSAT token into a static-balance token (wstXSAT),
+ * similar to wstETH. wstXSAT only changes balance on transfers, making it suitable for DeFi protocols
+ * that do not support rebasable tokens.
+ *
+ * @dev Users can deposit stXSAT tokens to mint an equivalent amount of wstXSAT tokens based on the current conversion rate.
+ * Conversely, calling unwrap() burns the user's wstXSAT tokens and returns the corresponding stXSAT tokens.
+ * The conversion rate is determined by the stXSAT contract's getSharesByPooledXSAT and getPooledXSATByShares functions.
  */
 contract WstXSAT is ERC20, ReentrancyGuard {
     using SafeERC20 for IERC20;
@@ -52,11 +41,11 @@ contract WstXSAT is ERC20, ReentrancyGuard {
     }
 
     /**
-     * @notice Wrap stXSAT into wstXSAT (1:1 conversion).
+     * @notice Wrap stXSAT tokens into wstXSAT tokens.
+     * @dev Calculates the amount of wstXSAT tokens to mint using stXSAT.getSharesByPooledXSAT.
+     * The user must approve this contract to spend at least the specified amount of stXSAT.
      * @param _stXSATAmount The amount of stXSAT to wrap.
-     * @return wstXSATAmount The amount of wstXSAT minted.
-     *
-     * Note: The user must approve this contract to spend at least _stXSATAmount of stXSAT.
+     * @return wstXSATAmount The amount of wstXSAT tokens minted and assigned to the user.
      */
     function wrap(uint256 _stXSATAmount) external nonReentrant returns (uint256 wstXSATAmount) {
         require(_stXSATAmount > 0, "WstXSAT: cannot wrap zero stXSAT");
@@ -73,9 +62,11 @@ contract WstXSAT is ERC20, ReentrancyGuard {
     }
 
     /**
-     * @notice Unwrap wstXSAT back into stXSAT (1:1 conversion).
-     * @param _wstXSATAmount The amount of wstXSAT to unwrap.
-     * @return stXSATAmount The amount of stXSAT returned.
+     * @notice Unwrap wstXSAT tokens back into stXSAT tokens.
+     * @dev Calculates the corresponding stXSAT amount using stXSAT.getPooledXSATByShares,
+     * burns the user's wstXSAT tokens, and transfers the stXSAT tokens back to the user.
+     * @param _wstXSATAmount The amount of wstXSAT tokens to unwrap.
+     * @return stXSATAmount The amount of stXSAT tokens returned to the user.
      */
     function unwrap(uint256 _wstXSATAmount) external nonReentrant returns (uint256 stXSATAmount) {
         require(_wstXSATAmount > 0, "WstXSAT: cannot unwrap zero amount");
@@ -92,34 +83,34 @@ contract WstXSAT is ERC20, ReentrancyGuard {
     }
 
     /**
-     * @notice Returns the wrapped token amount for a given stXSAT amount.
-     * @param _stXSATAmount The amount of stXSAT.
-     * @return The corresponding amount of wstXSAT.
+     * @notice Returns the equivalent wstXSAT amount for a given stXSAT amount.
+     * @param _stXSATAmount The stXSAT amount.
+     * @return The corresponding wstXSAT amount.
      */
     function getWstXSATByStXSAT(uint256 _stXSATAmount) external view returns (uint256) {
         return stXSAT.getSharesByPooledXSAT(_stXSATAmount);
     }
 
     /**
-     * @notice Returns the stXSAT amount for a given wrapped token amount.
-     * @param _wstXSATAmount The amount of wstXSAT.
-     * @return The corresponding amount of stXSAT.
+     * @notice Returns the equivalent stXSAT amount for a given wstXSAT amount.
+     * @param _wstXSATAmount The wstXSAT amount.
+     * @return The corresponding stXSAT amount.
      */
     function getStXSATByWstXSAT(uint256 _wstXSATAmount) external view returns (uint256) {
         return stXSAT.getPooledXSATByShares(_wstXSATAmount);
     }
 
     /**
-     * @notice Returns the amount of stXSAT per one wstXSAT token.
-     * @return The stXSAT amount equivalent to 1 wstXSAT (using 1 ether as the unit).
+     * @notice Returns the amount of stXSAT equivalent to 1 wstXSAT token (using 1 ether as the unit).
+     * @return The stXSAT amount corresponding to 1 wstXSAT.
      */
     function stXSATPerToken() external view returns (uint256) {
         return stXSAT.getPooledXSATByShares(1 ether);
     }
 
     /**
-     * @notice Returns the amount of wstXSAT per one stXSAT token.
-     * @return The wstXSAT amount equivalent to 1 stXSAT (using 1 ether as the unit).
+     * @notice Returns the amount of wstXSAT equivalent to 1 stXSAT token (using 1 ether as the unit).
+     * @return The wstXSAT amount corresponding to 1 stXSAT.
      */
     function tokensPerStXSAT() external view returns (uint256) {
         return stXSAT.getSharesByPooledXSAT(1 ether);
