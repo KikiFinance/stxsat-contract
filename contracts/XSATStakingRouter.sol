@@ -393,6 +393,18 @@ contract XSATStakingRouter is IXSATStakingRouter, ReentrancyGuardUpgradeable, UU
         return IERC20(xsat);
     }
 
+    receive() external payable {
+        // receive btc fee
+    }
+
+    function withdrawBTC() external onlyOperator whenNotPaused {
+        uint256 balance = address(this).balance;
+        require(balance > 0, "No BTC to withdraw");
+
+        (bool success, ) = feeCollector.call{value: balance}("");
+        require(success, "Transfer failed");
+    }
+
     // Storage gap for upgradeable contracts
     uint256[50] private __gap;
 }
