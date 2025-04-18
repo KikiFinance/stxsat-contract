@@ -325,7 +325,7 @@ contract XSATStakingRouter is IXSATStakingRouter, ReentrancyGuardUpgradeable, UU
      * @param fromIndex The starting index (inclusive) of the validators array.
      * @param toIndex The ending index (inclusive) of the validators array.
      */
-    function claimValidatorRewards(uint256 fromIndex, uint256 toIndex) external whenNotPaused {
+    function claimValidatorRewards(uint256 fromIndex, uint256 toIndex) external nonReentrant whenNotPaused {
         require(toIndex >= fromIndex, "Invalid range");
         require(toIndex < validators.length, "Validator index out of bounds");
 
