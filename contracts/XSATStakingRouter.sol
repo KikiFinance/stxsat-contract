@@ -102,6 +102,7 @@ contract XSATStakingRouter is IXSATStakingRouter, ReentrancyGuardUpgradeable, UU
 
     // Set the stXSAT contract address (only admin can call)
     function setStXSAT(address _stXSAT) external onlyAdmin {
+        require(stXSAT == address(0), "stXSAT already set");
         require(_stXSAT != address(0), "stXSAT cannot be zero address");
         stXSAT = _stXSAT;
     }
