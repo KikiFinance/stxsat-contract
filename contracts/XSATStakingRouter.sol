@@ -179,8 +179,14 @@ contract XSATStakingRouter is IXSATStakingRouter, ReentrancyGuardUpgradeable, UU
         uint256[] memory sortedIndexes = _sortDescending(indexes);
 
         // Remove validators in descending order
+        uint256 prevIndex = type(uint256).max;
         for (uint256 i = 0; i < sortedIndexes.length; i++) {
-            _removeValidator(sortedIndexes[i]);
+            uint256 currentIndex = sortedIndexes[i];
+            if (currentIndex == prevIndex) {
+                continue; // Skip duplicates
+            }
+            _removeValidator(currentIndex);
+            prevIndex = currentIndex;
         }
     }
 
