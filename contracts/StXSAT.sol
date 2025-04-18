@@ -117,6 +117,8 @@ contract StXSAT is BaseStXSAT, ReentrancyGuardUpgradeable, UUPSUpgradeable, Acce
         __Pausable_init();
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _setupRole(STAKING_CONTROL_ROLE, msg.sender);
+        require(_xsatAddress          != address(0), "xsatAddress cannot be zero address");
+        require(_stakeRouterAddress   != address(0), "stakeRouter cannot be zero address");
         xsatToken = _xsatAddress;
         stakingRouter = _stakeRouterAddress;
     }

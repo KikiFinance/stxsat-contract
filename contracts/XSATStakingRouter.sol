@@ -90,8 +90,9 @@ contract XSATStakingRouter is IXSATStakingRouter, ReentrancyGuardUpgradeable, UU
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _setupRole(OPERATOR_ROLE, msg.sender);
 
-        require(_xsatAddress != address(0), "xsat cannot be zero address");
-        require(_stakeHelperAddress != address(0), "stakeHelper cannot be zero address");
+        require(_xsatAddress         != address(0), "xsatAddress cannot be zero address");
+        require(_stakeHelperAddress  != address(0), "stakeHelper cannot be zero address");
+        require(_rewardHelperAddress != address(0), "rewardHelper cannot be zero address");
         xsat = _xsatAddress;
         stakeHelper = _stakeHelperAddress;
         rewardHelper = _rewardHelperAddress;
