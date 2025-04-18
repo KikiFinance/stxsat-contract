@@ -80,6 +80,9 @@ contract XSATStakingRouter is IXSATStakingRouter, ReentrancyGuardUpgradeable, UU
         _;
     }
 
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() initializer {}
+
     // ========== Initialization & Upgrade ==========
     function initialize(address _xsatAddress, address _stakeHelperAddress, address _rewardHelperAddress) external initializer {
         __ReentrancyGuard_init();

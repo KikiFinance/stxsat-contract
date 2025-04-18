@@ -102,6 +102,9 @@ contract StXSAT is BaseStXSAT, ReentrancyGuardUpgradeable, UUPSUpgradeable, Acce
         _;
     }
 
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() initializer {}
+
     // -------------------------------
     // Initialization & Upgrade Authorization
     // -------------------------------
