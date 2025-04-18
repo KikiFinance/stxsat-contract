@@ -240,7 +240,7 @@ contract XSATStakingRouter is IXSATStakingRouter, ReentrancyGuardUpgradeable, UU
      * Reverts if all validators are already staked.
      * @param _amount The total amount to stake.
      */
-    function deposit(uint256 _amount) external onlyStXSAT nonReentrant whenNotPaused {
+    function deposit(uint256 _amount) external payable onlyStXSAT nonReentrant whenNotPaused {
         require(_amount > 0, "Amount must be > 0");
         require(_amount % validatorCapacity == 0, "Deposit must be multiple of validator capacity");
 
@@ -269,7 +269,7 @@ contract XSATStakingRouter is IXSATStakingRouter, ReentrancyGuardUpgradeable, UU
 
             _xsat().safeApprove(stakeHelper, validatorCapacity);
             // Stake a fixed amount (validatorCapacity) to the found validator.
-            _stakeHelper().deposit(validators[usedIndex].validatorAddress, validatorCapacity);
+            _stakeHelper().deposit{value: msg.value}(validators[usedIndex].validatorAddress, validatorCapacity);
             validators[usedIndex].staked = true;
             validators[usedIndex].amount = validatorCapacity;
             // Update stakingIndex to the next position.

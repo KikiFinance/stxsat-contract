@@ -328,7 +328,7 @@ contract StXSAT is BaseStXSAT, ReentrancyGuardUpgradeable, UUPSUpgradeable, Acce
      *      it calculates the deficit in whole withdrawal units and triggers a withdrawal.
      *      Both actions emit events for logging.
      */
-    function syncBuffers() external nonReentrant whenNotPaused {
+    function syncBuffers() external payable nonReentrant whenNotPaused {
         IERC20 xsat = _xsatToken();
         IXSATStakingRouter router = _stakingRouter();
         uint256 validatorCapacity = router.validatorCapacity();
@@ -344,7 +344,7 @@ contract StXSAT is BaseStXSAT, ReentrancyGuardUpgradeable, UUPSUpgradeable, Acce
             // Transfer the deposit funds to the staking router.
             xsat.safeApprove(stakingRouter, amountToDeposit);
             // Trigger a deposit on the staking router.
-            router.deposit(amountToDeposit);
+            router.deposit{value: msg.value}(amountToDeposit);
             emit TokenDepositSynced(stakingRouter, amountToDeposit);
         }
 
