@@ -527,9 +527,6 @@ contract StXSAT is BaseStXSAT, ReentrancyGuardUpgradeable, UUPSUpgradeable, Acce
         // Calculate new pooled XSAT.
         uint256 postTotalPooledXSAT = preTotalPooledXSAT + _reward;
 
-        // Calculate shares corresponding to the reward.
-        uint256 rewardShares = getSharesByPooledXSAT(_reward);
-
         // Update total shares: add reward shares and subtract fee shares.
         uint256 postTotalShares = preTotalShares + feeShares;
 
