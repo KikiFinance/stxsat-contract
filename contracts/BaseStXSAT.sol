@@ -293,4 +293,9 @@ abstract contract BaseStXSAT is IERC20, PausableUpgradeable {
         _mintShares(INITIAL_TOKEN_HOLDER, _sharesAmount);
         _emitTransferAfterMintingShares(INITIAL_TOKEN_HOLDER, _sharesAmount);
     }
+
+    // -------------------------------
+    // Storage Gap for Upgradeability
+    // -------------------------------
+    uint256[50] private __gap;
 }
