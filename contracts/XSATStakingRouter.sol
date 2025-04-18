@@ -240,10 +240,15 @@ contract XSATStakingRouter is IXSATStakingRouter, ReentrancyGuardUpgradeable, UU
     function deposit(uint256 _amount) external onlyStXSAT nonReentrant whenNotPaused {
         require(_amount > 0, "Amount must be > 0");
         require(_amount % validatorCapacity == 0, "Deposit must be multiple of validator capacity");
-        uint256 count = _amount / validatorCapacity;
 
         // Transfer XSAT from the stXSAT contract to this contract.
+        uint256 beforeBalance = _xsat().balanceOf(address(this));
         _xsat().safeTransferFrom(stXSAT, address(this), _amount);
+        uint256 afterBalance = _xsat().balanceOf(address(this));
+        uint256 received = afterBalance - beforeBalance;
+        require(received == _amount, "DEFEE_TRANSFER_NOT_SUPPORTED");
+
+        uint256 count = _amount / validatorCapacity;
 
         for (uint256 i = 0; i < count; i++) {
             bool found = false;

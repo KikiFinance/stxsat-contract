@@ -369,7 +369,11 @@ contract StXSAT is BaseStXSAT, ReentrancyGuardUpgradeable, UUPSUpgradeable, Acce
         require(!isStakingPaused(), "STAKING_PAUSED");
 
         // Transfer XSAT from user to this contract
+        uint256 beforeBalance = _xsatToken().balanceOf(address(this));
         _xsatToken().safeTransferFrom(msg.sender, address(this), _amount);
+        uint256 afterBalance = _xsatToken().balanceOf(address(this));
+        uint256 received = afterBalance - beforeBalance;
+        require(received == _amount, "DEFEE_TRANSFER_NOT_SUPPORTED");
 
         uint256 currentStakeLimit = _getCurrentStakeLimit();
         require(_amount <= currentStakeLimit, "STAKE_LIMIT");
