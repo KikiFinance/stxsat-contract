@@ -170,6 +170,13 @@ contract StXSAT is BaseStXSAT, ReentrancyGuardUpgradeable, UUPSUpgradeable, Acce
      * @param _maxStakeLimit The new maximum staking limit.
      */
     function setStakingLimit(uint256 _maxStakeLimit) public onlyStakingController {
+        if (_maxStakeLimit != type(uint256).max) {
+            uint256 balance = _stakingRouter().getStakingBalance();
+            require(
+                _maxStakeLimit >= balance + _depositBuffer,
+                "Staking limit too low"
+            );
+        }
         maxStakeLimit = _maxStakeLimit;
         emit StakingLimitSet(_maxStakeLimit);
     }
