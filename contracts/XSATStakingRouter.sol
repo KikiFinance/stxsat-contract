@@ -64,6 +64,7 @@ contract XSATStakingRouter is IXSATStakingRouter, ReentrancyGuardUpgradeable, UU
     event FeeUpdated(uint256 oldFee, uint256 newFee);
     event FeeCollectorUpdated(address oldCollector, address newCollector);
     event ValidatorCapacityUpdated(uint256 oldCapacity, uint256 newCapacity);
+    event StXSATSet(address indexed newStXSAT);
 
     // ========== Modifiers ==========
     modifier onlyStXSAT() {
@@ -105,6 +106,7 @@ contract XSATStakingRouter is IXSATStakingRouter, ReentrancyGuardUpgradeable, UU
         require(stXSAT == address(0), "stXSAT already set");
         require(_stXSAT != address(0), "stXSAT cannot be zero address");
         stXSAT = _stXSAT;
+        emit StXSATSet(_stXSAT);
     }
 
     // ========== Validator Registration ==========
