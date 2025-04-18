@@ -19,7 +19,7 @@ interface IXSATStakingRouter {
     function feeCollector() external view returns (address);
 
     /// @notice Deposits a specified amount of XSAT tokens.
-    function deposit(uint256 _amount) external;
+    function deposit(uint256 _amount) payable external;
 
     /// @notice Requests a withdrawal of the specified amount of XSAT tokens.
     function requestWithdraw(uint256 _amount) external;
