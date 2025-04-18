@@ -252,7 +252,7 @@ contract XSATStakingRouter is IXSATStakingRouter, ReentrancyGuardUpgradeable, UU
 
         for (uint256 i = 0; i < count; i++) {
             bool found = false;
-            uint256 usedIndex;
+            uint256 usedIndex = 0;
             // Start searching from current stakingIndex for an unstaked validator.
             for (uint256 j = 0; j < validators.length; j++) {
                 uint256 idx = (stakingIndex + j) % validators.length;
@@ -286,7 +286,7 @@ contract XSATStakingRouter is IXSATStakingRouter, ReentrancyGuardUpgradeable, UU
         uint256 count = _amount / validatorCapacity;
         for (uint256 i = 0; i < count; i++) {
             bool found = false;
-            uint256 usedIndex;
+            uint256 usedIndex = 0;
             // Search from current redemptionIndex for a staked validator.
             for (uint256 j = 0; j < validators.length; j++) {
                 uint256 idx = (redemptionIndex + j) % validators.length;
