@@ -256,6 +256,11 @@ contract XSATStakingRouter is IXSATStakingRouter, ReentrancyGuardUpgradeable, UU
 
         uint256 count = _amount / validatorCapacity;
 
+        uint256 depositFee = _stakeHelper().depositFee();
+        require(msg.value == depositFee * count, "Incorrect total deposit fee");
+
+        _xsat().safeApprove(stakeHelper, validatorCapacity * count);
+
         for (uint256 i = 0; i < count; i++) {
             bool found = false;
             uint256 usedIndex = 0;
@@ -270,9 +275,8 @@ contract XSATStakingRouter is IXSATStakingRouter, ReentrancyGuardUpgradeable, UU
             }
             require(found, "All validators are staked");
 
-            _xsat().safeApprove(stakeHelper, validatorCapacity);
             // Stake a fixed amount (validatorCapacity) to the found validator.
-            _stakeHelper().deposit{value: msg.value}(validators[usedIndex].validatorAddress, validatorCapacity);
+            _stakeHelper().deposit{value: depositFee}(validators[usedIndex].validatorAddress, validatorCapacity);
             validators[usedIndex].staked = true;
             validators[usedIndex].amount = validatorCapacity;
             // Update stakingIndex to the next position.

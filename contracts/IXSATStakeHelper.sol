@@ -13,5 +13,6 @@ interface IXSATStakeHelper {
     function authorizeTransfer(address _operator, address _fromValidator, uint256 _amount) external;
     function performTransfer(address _user, address _fromValidator, address _toValidator, uint256 _amount) external;
     function stakeInfo(address _validator, address _user) external view returns (uint256 amount);
+    function depositFee() external view returns (uint256);
 
 }

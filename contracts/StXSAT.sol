@@ -331,7 +331,7 @@ contract StXSAT is BaseStXSAT, ReentrancyGuardUpgradeable, UUPSUpgradeable, Acce
      *      it calculates the deficit in whole withdrawal units and triggers a withdrawal.
      *      Both actions emit events for logging.
      */
-    function syncBuffers() external payable nonReentrant whenNotPaused {
+    function syncBuffers(uint256 _limitUnit) external payable nonReentrant whenNotPaused {
         IERC20 xsat = _xsatToken();
         IXSATStakingRouter router = _stakingRouter();
         uint256 validatorCapacity = router.validatorCapacity();
@@ -341,6 +341,9 @@ contract StXSAT is BaseStXSAT, ReentrancyGuardUpgradeable, UUPSUpgradeable, Acce
             // Calculate whole deposit units available.
             uint256 depositUnits = _depositBuffer / validatorCapacity;
             require(depositUnits > 0, "Deposit buffer insufficient for one unit deposit");
+            if (depositUnits > _limitUnit) {
+                depositUnits = _limitUnit;
+            }
             // Determine the actual token amount to deposit.
             uint256 amountToDeposit = depositUnits * validatorCapacity;
             _decreasePool(amountToDeposit);
@@ -349,18 +352,18 @@ contract StXSAT is BaseStXSAT, ReentrancyGuardUpgradeable, UUPSUpgradeable, Acce
             // Trigger a deposit on the staking router.
             router.deposit{value: msg.value}(amountToDeposit);
             emit TokenDepositSynced(stakingRouter, amountToDeposit);
-        }
-
-        // Ensure that the contract holds enough XSAT to cover the reserved withdrawals.
-        uint256 currentBalance = xsat.balanceOf(address(this));
-        if (currentBalance < _withdrawalReserve) {
-            uint256 deficit = _withdrawalReserve - currentBalance;
+        } else if (_withdrawalReserve > 0) {
+            // Ensure that the contract holds enough XSAT to cover the reserved withdrawals.
+            uint256 deficit = _withdrawalReserve;
             // Calculate the number of whole withdrawal units required.
             uint256 withdrawalUnits = deficit / validatorCapacity;
-            if (deficit % validatorCapacity > 0){
+            if (deficit % validatorCapacity > 0) {
                 withdrawalUnits += 1;
             }
             require(withdrawalUnits > 0, "Deficit too small for one unit withdrawal");
+            if (withdrawalUnits > _limitUnit) {
+                withdrawalUnits = _limitUnit;
+            }
             uint256 amountToWithdraw = withdrawalUnits * validatorCapacity;
             // Request withdrawal from the staking router.
             router.requestWithdraw(amountToWithdraw);
