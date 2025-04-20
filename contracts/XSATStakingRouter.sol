@@ -400,6 +400,10 @@ contract XSATStakingRouter is IXSATStakingRouter, ReentrancyGuardUpgradeable, UU
         return total;
     }
 
+    function validatorCount() external view returns (uint256) {
+        return validators.length;
+    }
+
     // Internal function to return the stake helper interface.
     function _stakeHelper() internal view returns (IXSATStakeHelper) {
         return IXSATStakeHelper(stakeHelper);
